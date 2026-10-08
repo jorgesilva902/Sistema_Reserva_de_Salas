@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="description" content="Sistema de Reserva de Salas Académicas">
+  <title>Reserva de Salas</title>
+
+  <!-- Tipografía Google Fonts moderna -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Estilos CSS -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ==================================================================== -->
+  <!-- CONTENEDOR PRINCIPAL SPA                                             -->
+  <!-- ==================================================================== -->
+  <div id="app" class="app-container">
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- VISTA 1: LOGIN INSTITUCIONAL                                       -->
+    <!-- ------------------------------------------------------------------ -->
+    <section id="view-login" class="view view-login active">
+      <div class="login-wrapper">
+        <div class="login-card">
+          <!-- Encabezado con identidad institucional -->
+          <div class="login-header">
+            <div class="brand-badge">
+              <span class="brand-logo-icon">🏢</span>
+              <span class="brand-logo-text">Reservas</span>
+            </div>
+            <h1 class="login-title">Reserva de Salas</h1>
+            <p class="login-subtitle">Gestión inteligente de espacios académicos y laboratorios</p>
+          </div>
+
+          <!-- Mensaje de error general de login (401 o red) -->
+          <div id="login-alert" class="alert alert-danger hidden" role="alert">
+            <span class="alert-icon">⚠️</span>
+            <span id="login-alert-msg" class="alert-text">Credenciales incorrectas</span>
+          </div>
+
+          <!-- Formulario de Login -->
+          <form id="form-login" class="form-vertical" novalidate>
+            <div class="form-group">
+              <label for="login-email" class="form-label">Correo Institucional</label>
+              <div class="input-icon-wrapper">
+                <span class="input-icon">✉️</span>
+                <input
+                  type="email"
+                  id="login-email"
+                  name="username"
+                  class="form-input"
+                  placeholder="ejemplo@correo.cl"
+                  required
+                  autocomplete="username"
+                >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="login-password" class="form-label">Contraseña</label>
+              <div class="input-icon-wrapper">
+                <span class="input-icon">🔒</span>
+                <input
+                  type="password"
+                  id="login-password"
+                  name="password"
+                  class="form-input"
+                  placeholder="Ingresa tu contraseña"
+                  required
+                  autocomplete="current-password"
+                >
+              </div>
+            </div>
+
+            <button type="submit" id="btn-login-submit" class="btn btn-primary btn-block">
+              <span class="btn-text">Iniciar Sesión</span>
+              <span class="btn-spinner hidden"></span>
+            </button>
+          </form>
+
+          <!-- Acceso rápido para pruebas de evaluación -->
+          <div class="login-quick-access">
+            <p class="quick-title">Cuentas de prueba rápida:</p>
+            <div class="quick-buttons">
+              <button type="button" class="btn-quick" data-email="alumno@inacap.cl" title="Rol Alumno">
+                🎓 Alumno
+              </button>
+              <button type="button" class="btn-quick" data-email="docente@inacap.cl" title="Rol Docente">
+                👨‍🏫 Docente
+              </button>
+              <button type="button" class="btn-quick" data-email="encargado@inacap.cl" title="Rol Encargado">
+                📋 Encargado
+              </button>
+              <button type="button" class="btn-quick" data-email="admin@inacap.cl" title="Rol Administrador">
+                🛡️ Admin
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <footer class="login-footer">
+          <p>© 2026 Sistema de Reserva de Salas</p>
+        </footer>
+      </div>
+    </section>
+
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- VISTA 2: APLICACIÓN PRINCIPAL (DASHBOARD + MIS RESERVAS)           -->
+    <!-- ------------------------------------------------------------------ -->
+    <section id="view-dashboard" class="view view-dashboard hidden">
+      <!-- Navbar Superior -->
+      <header class="navbar">
+        <div class="navbar-content">
+          <div class="navbar-brand">
+            <span class="navbar-logo-badge">Reservas</span>
+            <span class="navbar-title">Reserva de Salas</span>
+          </div>
+
+          <!-- Pestañas de Navegación -->
+          <nav class="nav-tabs" aria-label="Navegación principal">
+            <button type="button" id="tab-salas" class="tab-btn active" data-target="panel-salas">
+              <span class="tab-icon">🏛️</span>
+              <span class="tab-text">Salas Disponibles</span>
+            </button>
+            <button type="button" id="tab-reservas" class="tab-btn" data-target="panel-reservas">
+              <span class="tab-icon">📅</span>
+              <span class="tab-text">Mis Reservas</span>
+              <span id="badge-reservas-count" class="tab-badge hidden">0</span>
+            </button>
+            <button type="button" id="tab-admin" class="tab-btn hidden" data-target="panel-admin">
+              <span class="tab-icon">🛡️</span>
+              <span class="tab-text">Administración</span>
+            </button>
+          </nav>
+
+          <!-- Perfil de usuario y Logout -->
+          <div class="navbar-user">
+            <div class="user-meta">
+              <span id="nav-user-name" class="user-name">Usuario</span>
+              <span id="nav-user-role" class="badge-role">ALUMNO</span>
+            </div>
+            <button type="button" id="btn-logout" class="btn btn-outline-light btn-sm" title="Cerrar Sesión">
+              <span class="btn-icon">🚪</span>
+              <span class="btn-label-desktop">Salir</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Contenido Principal -->
+      <main class="main-content">
+        <!-- SUB-PANEL A: GRILLA DE SALAS DISPONIBLES -->
+        <div id="panel-salas" class="panel-section active">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Salas Disponibles</h2>
+              <p class="panel-subtitle">Selecciona una sala para agendar un bloque horario académico.</p>
+            </div>
+            <div class="panel-actions">
+              <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input
+                  type="text"
+                  id="input-filtro-sala"
+                  placeholder="Buscar sala (ej: LAB, AUD)..."
+                  class="search-input"
+                >
+              </div>
+              <button type="button" id="btn-refresh-salas" class="btn btn-secondary btn-sm" title="Recargar salas">
+                🔄 Refrescar
+              </button>
+            </div>
+          </div>
+
+          <!-- Spinner de carga -->
+          <div id="salas-loading" class="state-feedback">
+            <div class="spinner"></div>
+            <p>Cargando catálogo de salas...</p>
+          </div>
+
+          <!-- Grilla de Tarjetas -->
+          <div id="salas-grid" class="cards-grid hidden"></div>
+
+          <!-- Estado Vacío -->
+          <div id="salas-empty" class="state-feedback hidden">
+            <span class="state-icon">🏛️</span>
+            <h3>No se encontraron salas</h3>
+            <p>No hay salas disponibles con los criterios seleccionados.</p>
+          </div>
+        </div>
+
+        <!-- SUB-PANEL B: MIS RESERVAS -->
+        <div id="panel-reservas" class="panel-section hidden">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Mis Reservas Académicas</h2>
+              <p class="panel-subtitle">Consulta tus bloques reservados y gestiona tus cancelaciones.</p>
+            </div>
+            <div class="panel-actions">
+              <button type="button" id="btn-refresh-reservas" class="btn btn-secondary btn-sm" title="Recargar reservas">
+                🔄 Actualizar lista
+              </button>
+            </div>
+          </div>
+
+          <!-- Spinner de carga -->
+          <div id="reservas-loading" class="state-feedback">
+            <div class="spinner"></div>
+            <p>Obteniendo tus reservas...</p>
+          </div>
+
+          <!-- Lista de Reservas -->
+          <div id="reservas-list" class="reservas-container hidden"></div>
+
+          <!-- Estado Vacío -->
+          <div id="reservas-empty" class="state-feedback hidden">
+            <span class="state-icon">📆</span>
+            <h3>No tienes reservas activas</h3>
+            <p>Explora el catálogo de salas y agenda tu próximo bloque académico.</p>
+            <button type="button" id="btn-ir-a-salas" class="btn btn-primary" style="margin-top: 1rem;">
+              Ver Salas Disponibles
+            </button>
+          </div>
+        </div>
+        <!-- SUB-PANEL C: ADMINISTRACIÓN (Solo Admin / Encargado) -->
+        <div id="panel-admin" class="panel-section hidden">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Administración de Salas</h2>
+              <p class="panel-subtitle">Gestiona el catálogo de salas y sus tipos.</p>
+            </div>
+            <div class="panel-actions">
+              <button type="button" id="btn-nueva-sala" class="btn btn-primary btn-sm">➕ Nueva Sala</button>
+              <button type="button" id="btn-refresh-admin" class="btn btn-secondary btn-sm">🔄 Refrescar</button>
+            </div>
+          </div>
+
+          <!-- Tabla de salas -->
+          <div class="admin-table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Tipo</th>
+                  <th>Capacidad</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="admin-salas-tbody"></tbody>
+            </table>
+            <div id="admin-salas-empty" class="state-feedback hidden">
+              <p>No hay salas registradas.</p>
+            </div>
+          </div>
+
+          <!-- Tipos de sala -->
+          <div class="panel-header" style="margin-top: 2rem;">
+            <div>
+              <h2 class="panel-title">Tipos de Sala</h2>
+              <p class="panel-subtitle">Catálogo de tipos (solo Admin puede crear/eliminar).</p>
+            </div>
+          </div>
+
+          <form id="form-nuevo-tipo" class="form-inline" novalidate>
+            <div class="form-group" style="flex: 1;">
+              <label for="tipo-acronimo" class="form-label">Acrónimo</label>
+              <input type="text" id="tipo-acronimo" class="form-input" placeholder="Ej: LAB" maxlength="10" required>
+            </div>
+            <div class="form-group" style="flex: 3;">
+              <label for="tipo-descripcion" class="form-label">Descripción</label>
+              <input type="text" id="tipo-descripcion" class="form-input" placeholder="Ej: Laboratorio de Computación" maxlength="100" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm" style="align-self: flex-end;">➕ Agregar Tipo</button>
+          </form>
+
+          <div class="admin-table-wrapper" style="margin-top: 1rem;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Acrónimo</th>
+                  <th>Descripción</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="admin-tipos-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </section>
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- MODAL DE RESERVA (CRUCIAL: CONCURRENCIA Y POST /reservas/)         -->
+    <!-- ------------------------------------------------------------------ -->
+    <div id="modal-reserva" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-sala-nombre">
+      <div class="modal-card">
+        <!-- Cabecera del Modal -->
+        <div class="modal-header">
+          <div>
+            <span class="modal-tag">Nueva Reserva</span>
+            <h3 id="modal-sala-nombre" class="modal-title">Sala LAB-101</h3>
+          </div>
+          <button type="button" id="btn-close-modal" class="modal-close" aria-label="Cerrar modal">&times;</button>
+        </div>
+
+        <!-- ALERTA DE CONCURRENCIA CRÍTICA (HTTP 409) -->
+        <div id="modal-alert-conflict" class="alert alert-danger hidden" role="alert">
+          <span class="alert-icon">🚫</span>
+          <div class="alert-content">
+            <strong>Colisión de Horario</strong>
+            <p id="modal-alert-text">El bloque ya fue reservado por otro usuario. Por favor, seleccione otro horario.</p>
+          </div>
+        </div>
+
+        <!-- ALERTA DE ÉXITO (HTTP 201) -->
+        <div id="modal-alert-success" class="alert alert-success hidden" role="alert">
+          <span class="alert-icon">✅</span>
+          <div class="alert-content">
+            <strong>¡Reserva Confirmada!</strong>
+            <p>Tu bloque académico ha sido agendado exitosamente.</p>
+          </div>
+        </div>
+
+        <!-- Formulario del Modal -->
+        <form id="form-crear-reserva" class="form-vertical" novalidate>
+          <input type="hidden" id="reserva-sala-id" name="id_sala" value="">
+
+          <!-- Información de la sala -->
+          <div class="modal-sala-summary">
+            <div class="summary-item">
+              <span class="summary-label">Capacidad:</span>
+              <span id="modal-sala-capacidad" class="summary-value">30 personas</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Estado:</span>
+              <span class="badge-status status-active">Habilitada</span>
+            </div>
+          </div>
+
+          <!-- Selector de Fecha -->
+          <div class="form-group">
+            <label for="reserva-fecha" class="form-label">Fecha de la Reserva</label>
+            <input
+              type="date"
+              id="reserva-fecha"
+              name="fecha"
+              class="form-input"
+              required
+            >
+            <small class="form-hint">Solo se permiten reservas desde la fecha de hoy en adelante.</small>
+          </div>
+
+          <!-- Selector de Bloque Horario -->
+          <div class="form-group">
+            <label for="reserva-hora" class="form-label">Bloque Horario de Inicio</label>
+            <select id="reserva-hora" name="hora_inicio" class="form-select" required>
+              <option value="" disabled selected>Selecciona un bloque de inicio</option>
+              <option value="08:30">08:30 - Bloque 1 (Mañana)</option>
+              <option value="09:15">09:15 - Bloque 2</option>
+              <option value="10:15">10:15 - Bloque 3</option>
+              <option value="11:00">11:00 - Bloque 4</option>
+              <option value="11:45">11:45 - Bloque 5</option>
+              <option value="12:30">12:30 - Bloque 6</option>
+              <option value="13:45">13:45 - Bloque 7 (Tarde)</option>
+              <option value="14:30">14:30 - Bloque 8</option>
+              <option value="15:15">15:15 - Bloque 9</option>
+              <option value="16:15">16:15 - Bloque 10</option>
+              <option value="17:00">17:00 - Bloque 11</option>
+              <option value="17:45">17:45 - Bloque 12</option>
+              <option value="18:45">18:45 - Bloque 13 (Vespertino)</option>
+              <option value="19:30">19:30 - Bloque 14</option>
+              <option value="20:15">20:15 - Bloque 15</option>
+              <option value="21:00">21:00 - Bloque 16</option>
+            </select>
+          </div>
+
+          <!-- Duración del bloque -->
+          <div class="form-group">
+            <label for="reserva-duracion" class="form-label">Duración del Bloque</label>
+            <select id="reserva-duracion" name="bloque_minutos" class="form-select">
+              <option value="45" selected>45 minutos (1 bloque estándar)</option>
+              <option value="90">90 minutos (2 bloques continuos)</option>
+              <option value="135">135 minutos (3 bloques continuos)</option>
+            </select>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="modal-footer">
+            <button type="button" id="btn-cancelar-modal" class="btn btn-secondary">
+              Cancelar
+            </button>
+            <button type="submit" id="btn-submit-reserva" class="btn btn-primary">
+              <span class="btn-text">Confirmar Reserva</span>
+              <span class="btn-spinner hidden"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL CREAR / EDITAR SALA -->
+    <div id="modal-sala" class="modal-overlay hidden" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <span class="modal-tag">Gestión de Sala</span>
+            <h3 id="modal-sala-titulo" class="modal-title">Nueva Sala</h3>
+          </div>
+          <button type="button" id="btn-close-modal-sala" class="modal-close" aria-label="Cerrar modal">&times;</button>
+        </div>
+
+        <form id="form-sala" class="form-vertical" novalidate>
+          <input type="hidden" id="sala-id-edit" value="">
+
+          <div class="form-group">
+            <label for="sala-acronimo" class="form-label">Tipo de Sala (Acrónimo)</label>
+            <select id="sala-acronimo" class="form-select" required></select>
+          </div>
+
+          <div class="form-group">
+            <label for="sala-numero" class="form-label">Número / Identificador</label>
+            <input type="text" id="sala-numero" class="form-input" placeholder="Ej: 01" maxlength="10" required>
+          </div>
+
+          <div class="form-group">
+            <label for="sala-capacidad" class="form-label">Capacidad</label>
+            <input type="number" id="sala-capacidad" class="form-input" min="1" max="500" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <input type="checkbox" id="sala-habilitada" checked> Habilitada para reservas
+            </label>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" id="btn-cancelar-modal-sala" class="btn btn-secondary">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- TOAST CONTAINER (NOTIFICACIONES FLOTANTES)                         -->
+    <!-- ------------------------------------------------------------------ -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  </div>
+
+  <!-- Script Principal de la SPA -->
+  <script src="app.js"></script>
+</body>
+</html>
