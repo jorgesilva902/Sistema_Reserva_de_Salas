@@ -18,3 +18,9 @@ build/
 Thumbs.db
 .DS_Store
 
+# Pruebas y reportes excluidos
+tests/
+conftest.py
+*.docx
+scripts/generate_word_report.py
+
